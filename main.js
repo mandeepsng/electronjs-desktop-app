@@ -11,25 +11,44 @@ electronReload(__dirname)
 async function handleFileOpen () {
   const { canceled, filePaths } = await dialog.showOpenDialog()
   if (canceled) {
+    return null;
+  } 
+  const results = await new Promise((resolve, reject) => {
+    const stream = fs.createReadStream(filePaths[0]).pipe(csv());
 
-  } else {
-    
-    // return filePaths[0]
-    // return 'sdfsdf sdfsdf'
-    fs.createReadStream('data.csv')
+    const data = [];
+    stream.on('data', (d) => {
+      data.push(d);
+    });
+
+    stream.on('end', () => {
+      resolve(data);
+    });
+
+    stream.on('error', (err) => {
+      reject(err);
+    });
+  });
+
+
+  console.log(results);
+  return results;
+}
+
+
+ipcMain.on('read-csv', (event, filePath) => {
+  const results = []
+  fs.createReadStream(filePath)
     .pipe(csv())
     .on('data', (data) => {
-      // ipcRenderer.send('csv-data', data)
-      console.log(data)
-      return data;
+      results.push(data)
+      event.sender.send('csv-data', data)
     })
     .on('end', () => {
-      // ipcRenderer.send('csv-data-end')
-      return 'csv-data-end';
+      event.sender.send('csv-data-end')
+      console.log(results)
     })
-
-  }
-}
+})
 
 function createWindow () {
   const win = new BrowserWindow({
