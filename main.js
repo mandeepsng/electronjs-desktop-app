@@ -14,7 +14,7 @@ async function handleFileOpen () {
     return null;
   } 
   const results = await new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(filePaths[0]).pipe(csv());
+    const stream = fs.createReadStream(filePaths[0]).pipe(csv({ headers: true }));
 
     const data = [];
     stream.on('data', (d) => {
@@ -53,7 +53,7 @@ ipcMain.on('read-csv', (event, filePath) => {
 function createWindow () {
   const win = new BrowserWindow({
     width: 1800,
-    height: 600,
+    height: 700,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
