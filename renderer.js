@@ -8,8 +8,8 @@ btn.addEventListener('click', async () => {
     const json = JSON.stringify(filePath, null, 2);
     // filePathElement.innerText = json
     // console.log(filePath[0])
-
-    ipcRenderer.send('test:msg', {filePath}  )
+    const dd = filePath;
+    ipcRenderer.send('test:msg', {dd}  )
 
     var namelist = [];
 

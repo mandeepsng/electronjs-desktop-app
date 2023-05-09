@@ -3,10 +3,30 @@ const path = require('path')
 const fs = require('fs')
 const https = require('https')
 const csv = require('csv-parser')
+const ejs = require('ejs');
+const pdf = require('html-pdf');
 const electronReload = require('electron-reload')
 
 electronReload(__dirname)
 
+
+function createSlug(str) {
+  str = str.replace(/^\s+|\s+$/g, ''); // trim
+  str = str.toLowerCase();
+
+  // remove accents, swap ñ for n, etc
+  var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+  var to   = "aaaaeeeeiiiioooouuuunc------";
+  for (var i=0, l=from.length ; i<l ; i++) {
+    str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
+  }
+
+  str = str.replace(/[^a-z0-9 -]/g, '') // remove invalid chars
+           .replace(/\s+/g, '-') // collapse whitespace and replace by -
+           .replace(/-+/g, '-'); // collapse dashes
+
+  return str;
+}
 
 async function handleFileOpen () {
   const { canceled, filePaths } = await dialog.showOpenDialog()
@@ -84,8 +104,58 @@ app.on('window-all-closed', () => {
   }
 })
 
-ipcMain.on('test:msg',(e, options) => {
-  console.log(options)
+ipcMain.on('test:msg',(e, option) => {
+
+  // console.log(options)
+  const dd = option.dd[1];
+  const id = 1;
+  const headers = option.dd[0];
+  const data =  {
+    data: dd,
+    headers: headers,
+    image_url: 'http://localhost:3000/public/logo.png',
+  };
+
+  const template = fs.readFileSync('template.ejs', 'utf-8');
+  
+  const html = ejs.render(template, data);
+
+  // console.log(html)
+
+
+  var EmployeName = dd._0
+  EmployeName = createSlug(EmployeName)
+  var pdfFileName = `${EmployeName}.pdf`
+
+  const filePath = 'render.html';
+  fs.writeFile(filePath, html, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(`File "${filePath}" written successfully`);
+    }
+  });
+
+  // const html = fs.readFileSync('views/slip2.hbs', 'utf8');
+  const options = {
+      format: 'Letter',
+      border: {
+        top: '1px',
+        right: '1px',
+        bottom: '1px',
+        left: '1px'
+      },
+      footer: {
+        height: '15mm',
+        
+      }
+    };
+
+  pdf.create(html, options).toFile(pdfFileName, (err, res) => {
+    if (err) return console.log(err);
+    console.log(res); // { filename: '/app/businesscard.pdf' }
+  });
+
 })
 
 app.on('activate', () => {
