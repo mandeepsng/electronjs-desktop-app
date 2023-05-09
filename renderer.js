@@ -7,9 +7,9 @@ btn.addEventListener('click', async () => {
     // filePathElement.innerText = filePath
     const json = JSON.stringify(filePath, null, 2);
     // filePathElement.innerText = json
-    console.log(filePath[0])
+    // console.log(filePath[0])
 
-    
+    ipcRenderer.send('test:msg', {filePath}  )
 
     var namelist = [];
 
@@ -25,7 +25,7 @@ btn.addEventListener('click', async () => {
 
 
                 namelist.push(value._0);
-                console.log(index, value._0);
+                // console.log(index, value._0);
                 
                 var h6 = document.createElement('h3');
                 h6.setAttribute('id', index);

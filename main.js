@@ -31,7 +31,7 @@ async function handleFileOpen () {
   });
 
 
-  console.log(results);
+  // console.log(results);
   return results;
 }
 
@@ -82,6 +82,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+ipcMain.on('test:msg',(e, options) => {
+  console.log(options)
 })
 
 app.on('activate', () => {
