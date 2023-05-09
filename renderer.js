@@ -1,12 +1,48 @@
 const btn = document.getElementById('btn')
 const filePathElement = document.getElementById('filePath')
+const jsonOutput = document.getElementById('jsonOutput')
 
 btn.addEventListener('click', async () => {
     const filePath = await window.electronAPI.openFile()
     // filePathElement.innerText = filePath
     const json = JSON.stringify(filePath, null, 2);
-    filePathElement.innerText = json
-    console.log(json)
+    // filePathElement.innerText = json
+    console.log(filePath[0])
+
+    
+
+    var namelist = [];
+
+    filePath.forEach((value, index) => {
+
+        if (index > 0) {
+            // setTimeout(() => {
+
+
+            
+            
+
+
+
+                namelist.push(value._0);
+                console.log(index, value._0);
+                
+                var h6 = document.createElement('h3');
+                h6.setAttribute('id', index);
+
+                var text = document.createTextNode(value._0);
+                h6.appendChild(text);
+
+                document.querySelector('#jsonOutput').appendChild(h6);
+
+            // }, 2000); // Delay execution for 1 second (1000 milliseconds)
+
+        }
+
+      });
+      
+      
+      
     // ipcRenderer.send('read-csv', filePath)
     // const filePath = await window.electronAPI.openFile()
 
@@ -27,6 +63,11 @@ btn.addEventListener('click', async () => {
     // });
 
 })
+
+// action.addEventListener('click', async () => {
+
+
+// })
 
 // ipcRenderer.on('csv-data', (event, data) => {
 //     console.log(data)

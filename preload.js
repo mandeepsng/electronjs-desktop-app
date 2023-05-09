@@ -1,10 +1,12 @@
 const os = require('os');
 const fs = require('fs');
 const csv = require('csv-parser');
-const { contextBridge, ipcRenderer } = require('electron')
+const pdf = require('html-pdf');
+const ejs = require('ejs');
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  openFile: () => ipcRenderer.invoke('dialog:openFile')
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
 })
 
 contextBridge.exposeInMainWorld('path', {
@@ -22,6 +24,10 @@ contextBridge.exposeInMainWorld('csv', {
   parseStream: csv.parseStream,
 });
 
-contextBridge.exposeInMainWorld('electron', {
-  ipcRenderer: require('electron').ipcRenderer
+contextBridge.exposeInMainWorld('ipcRenderer', {
+  send: (channel, data) =>  ipcRenderer.send(channel, data),
+  on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args) ) ,
 })
+
+contextBridge.exposeInMainWorld('pdf', pdf);
+contextBridge.exposeInMainWorld('ejs', ejs);
