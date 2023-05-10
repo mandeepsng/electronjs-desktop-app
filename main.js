@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, ipcRenderer } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, ipcRenderer, webContents } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
@@ -9,6 +9,7 @@ const electronReload = require('electron-reload')
 
 electronReload(__dirname)
 
+let win;
 
 function createSlug(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
@@ -51,8 +52,111 @@ async function handleFileOpen () {
   });
 
 
-  // console.log(results);
-  return results;
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // add leading zero if necessary
+  const day = String(date.getDate()).padStart(2, '0'); // add leading zero if necessary
+
+  const folderName = `${year}-${month}-${day}`;
+  const downloadDir = app.getPath('downloads');
+
+  console.log(`Folder "${folderName}" created successfully in "${downloadDir}"`);
+  
+  fs.mkdir(`${downloadDir}/${folderName}`, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log(`Folder "${folderName}" created successfully in "${downloadDir}"`);
+    }
+  });
+
+
+  // console.log(results[0]);
+  results.forEach((value, index) => {
+
+
+
+
+
+
+
+  const dd = value;
+  const id = 1;
+  const headers = results[0];
+  const data =  {
+    data: dd,
+    headers: headers,
+    image_url: 'http://localhost:3000/public/logo.png',
+  };
+
+  const template_ejs = path.join(__dirname, 'template.ejs');
+
+  const template = fs.readFileSync(template_ejs, 'utf-8');
+  
+  const html = ejs.render(template, data);
+
+  // console.log(html)
+
+
+  var EmployeName = dd._0
+  EmployeName = createSlug(EmployeName)
+  var pdfFileName = `${downloadDir}/${folderName}/${EmployeName}.pdf`
+  // var pdfFileName = `${EmployeName}.pdf`
+
+
+
+  // const filePath = 'render.html';
+  // fs.writeFile(filePath, html, (err) => {
+  //   if (err) {
+  //     console.error(err);
+  //   } else {
+  //     console.log(`File "${filePath}" written successfully`);
+  //   }
+  // });
+
+  // Get the main window
+  const mainWindow = BrowserWindow.getAllWindows()[0];
+
+// Write the new contents to the file
+const filePath = path.join(__dirname, 'render.html');
+fs.writeFile(filePath, html, (err) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log(`File "${filePath}" written successfully`);
+    
+    // Send a message to the renderer process to update the page
+    mainWindow.webContents.send('update-page', html);
+  }
+});
+
+  // const html = fs.readFileSync('views/slip2.hbs', 'utf8');
+  const options = {
+      format: 'Letter',
+      border: {
+        top: '1px',
+        right: '1px',
+        bottom: '1px',
+        left: '1px'
+      },
+      footer: {
+        height: '15mm',
+        
+      }
+    };
+
+
+  pdf.create(html, options).toFile(pdfFileName, (err, res) => {
+    if (err) return console.log(err);
+    console.log(res); // { filename: '/app/businesscard.pdf' }
+  });
+
+
+
+
+});
+
+  return 'pdfFileName';
 }
 
 
@@ -87,7 +191,97 @@ function createWindow () {
 
   win.loadFile('index.html')
 
+  ipcMain.on('test:msg',(e, option) => {
+
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // add leading zero if necessary
+    const day = String(date.getDate()).padStart(2, '0'); // add leading zero if necessary
+
+    const folderName = `${year}-${month}-${day}`;
+    const downloadDir = app.getPath('downloads');
+
+    console.log(`Folder "${folderName}" created successfully in "${downloadDir}"`);
+    
+    fs.mkdir(`${downloadDir}/${folderName}`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Folder "${folderName}" created successfully in "${downloadDir}"`);
+      }
+    });
+
+
+
+    // console.log(options)
+    const dd = option.dd[1];
+    const id = 1;
+    const headers = option.dd[0];
+    const data =  {
+      data: dd,
+      headers: headers,
+      image_url: 'http://localhost:3000/public/logo.png',
+    };
+  
+    const template = fs.readFileSync('template.ejs', 'utf-8');
+    
+    const html = ejs.render(template, data);
+  
+    // console.log(html)
+  
+    var EmployeName = dd._0
+    EmployeName = createSlug(EmployeName)
+    var pdfFileName = `${downloadDir}/${folderName}/${EmployeName}.pdf`
+  
+    const filePath = 'render.html';
+    fs.writeFile(filePath, html, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`File "${pdfFileName}" written successfully`);
+      }
+    });
+  
+    // const html = fs.readFileSync('views/slip2.hbs', 'utf8');
+    const options = {
+        format: 'Letter',
+        border: {
+          top: '1px',
+          right: '1px',
+          bottom: '1px',
+          left: '1px'
+        },
+        footer: {
+          height: '15mm',
+          
+        }
+      };
+  
+    pdf.create(html, options).toFile(pdfFileName, (err, res) => {
+      if (err) return console.log(err);
+      console.log(res); // { filename: '/app/businesscard.pdf' }
+    });
+  
+  
+    // render success messge on main window
+    // e.sender.send('csv-data-end')
+    // Send a response back to the renderer process
+    e.reply('test:response', 'Response message');
+
+    // win.webContents.send('pdf:done', {pdfFileName} )
+    console.log('pdfFileName');
+    return 'newwww';
+  })
+
 }
+
+ipcMain.on('test:test', (event, option) => {
+  // Do something with the `option` parameter
+
+  // Send a response back to the renderer process
+  event.reply('test:response', 'Response message');
+});
 
 
 app.whenReady().then(() => {
@@ -104,60 +298,63 @@ app.on('window-all-closed', () => {
   }
 })
 
-ipcMain.on('test:msg',(e, option) => {
+ipcMain.handle('process-data2', (event, data) => {
+  // Perform actions with data
+  console.log('Data received:', data);
+  // Return response to renderer.js
+  return 'Data received successfully';
+});
 
-  // console.log(options)
-  const dd = option.dd[1];
-  const id = 1;
-  const headers = option.dd[0];
-  const data =  {
-    data: dd,
-    headers: headers,
-    image_url: 'http://localhost:3000/public/logo.png',
-  };
+  // handle the process-data URL
+  // ipcMain.handle('process-data', (event, data) => {
+  //   // do something with the data
+  //   console.log(data);
 
-  const template = fs.readFileSync('template.ejs', 'utf-8');
-  
-  const html = ejs.render(template, data);
+  //   // return a response
+  //   return 'Data received';
+  // });
 
-  // console.log(html)
+  let counter = 0;
 
+  ipcMain.on('increment-counter', (event) => {
 
-  var EmployeName = dd._0
-  EmployeName = createSlug(EmployeName)
-  var pdfFileName = `${EmployeName}.pdf`
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // add leading zero if necessary
+    const day = String(date.getDate()).padStart(2, '0'); // add leading zero if necessary
 
-  const filePath = 'render.html';
-  fs.writeFile(filePath, html, (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log(`File "${filePath}" written successfully`);
-    }
-  });
+    const folderName = `${year}-${month}-${day}`;
+    // fs.mkdir(folderName, function(err) {
+    //   if (err) {
+    //     console.error(err);
+    //   } else {
+    //     console.log(`Folder '${folderName}' created successfully`);
+    //   }
+    // });
+    // counter++;
+    // console.log('increment-counter', counter)
+    // event.reply('counter-updated', counter);
 
-  // const html = fs.readFileSync('views/slip2.hbs', 'utf8');
-  const options = {
-      format: 'Letter',
-      border: {
-        top: '1px',
-        right: '1px',
-        bottom: '1px',
-        left: '1px'
-      },
-      footer: {
-        height: '15mm',
-        
+    const downloadDir = app.getPath('downloads');
+    
+    fs.mkdir(`${downloadDir}/${folderName}`, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Folder "${folderName}" created successfully in "${downloadDir}"`);
       }
-    };
+    });
 
-  pdf.create(html, options).toFile(pdfFileName, (err, res) => {
-    if (err) return console.log(err);
-    console.log(res); // { filename: '/app/businesscard.pdf' }
+  });
+  
+  ipcMain.on('reset-counter', (event) => {
+    counter = 0;
+    console.log('reset-counter', counter)
+
+    event.reply('counter-updated', counter);
   });
 
-})
-
+  
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
