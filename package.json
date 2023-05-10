@@ -1,5 +1,5 @@
 {
-  "name": "electron",
+  "name": "rvs",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.example.app",
-    "asar": true,
+    "asar": false,
     "directories": {
       "output": "dist"
     },
@@ -28,9 +28,22 @@
       "target": [
         "dmg"
       ],
-      "icon": "assets/icon.icns"
+      "icon": "assets/icon.png"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
     }
-  },
+  }
+  ,
   "dependencies": {
     "csv-parser": "^3.0.0",
     "ejs": "^3.1.9",

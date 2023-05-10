@@ -9,18 +9,18 @@ const counterElement = document.getElementById('counter');
 btn.addEventListener('click', async () => {
     const filePath = await window.electronAPI.openFile()
     filePathElement.innerText = filePath
-    const json = JSON.stringify(filePath, null, 2);
+    // const json = JSON.stringify(filePath, null, 2);
     // filePathElement.innerText = json
     // console.log(filePath[0])
     
 
 
-    var namelist = [];
+    // var namelist = [];
 
-    filePath.forEach((value, index) => {
+    // filePath.forEach((value, index) => {
 
-        if (index > 0) {
-            // setTimeout(() => {
+    //     if (index > 0) {
+    //         // setTimeout(() => {
 
 
             
@@ -28,22 +28,22 @@ btn.addEventListener('click', async () => {
 
 
 
-                namelist.push(value._0);
-                // console.log(index, value._0);
+    //             namelist.push(value._0);
+    //             // console.log(index, value._0);
                 
-                var h6 = document.createElement('h3');
-                h6.setAttribute('id', index);
+    //             var h6 = document.createElement('h3');
+    //             h6.setAttribute('id', index);
 
-                var text = document.createTextNode(value._0);
-                h6.appendChild(text);
+    //             var text = document.createTextNode(value._0);
+    //             h6.appendChild(text);
 
-                document.querySelector('#jsonOutput').appendChild(h6);
+    //             document.querySelector('#jsonOutput').appendChild(h6);
 
-            // }, 2000); // Delay execution for 1 second (1000 milliseconds)
+    //         // }, 2000); // Delay execution for 1 second (1000 milliseconds)
 
-        }
+    //     }
 
-      });
+    //   });
       
     //   const dd = filePath;
     //  ipcRenderer.send('test:msg', {dd}  )

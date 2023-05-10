@@ -10,6 +10,7 @@ const electronReload = require('electron-reload')
 electronReload(__dirname)
 
 let win;
+let aboutWindow;
 
 function createSlug(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim
@@ -34,8 +35,18 @@ async function handleFileOpen () {
   if (canceled) {
     return null;
   } 
+
+  if (!canceled && filePaths.length > 0) {
+    const selectedFilePath = filePaths[0];
+    const directoryPath = path.dirname(selectedFilePath);
+  
+    // set full permissions to the directory where the file is located
+    fs.chmodSync(directoryPath, '0777');
+  }
+
   const results = await new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(filePaths[0]).pipe(csv({ headers: true }));
+    const filepath_new = filePaths[0];
+    const stream = fs.createReadStream(filepath_new).pipe(csv({ headers: true }));
 
     const data = [];
     stream.on('data', (d) => {
@@ -174,10 +185,22 @@ ipcMain.on('read-csv', (event, filePath) => {
     })
 })
 
+// About Window
+function createAboutWindow() {
+  aboutWindow = new BrowserWindow({
+    width: 300,
+    height: 300,
+    title: 'About Electron',
+  });
+
+   aboutWindow.loadFile(path.join(__dirname, './about.html'));
+}
+
+
 function createWindow () {
   const win = new BrowserWindow({
-    width: 1800,
-    height: 700,
+    width: 300,
+    height: 400,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
@@ -187,7 +210,7 @@ function createWindow () {
   })
 
   // open dev tools
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 
   win.loadFile('index.html')
 
