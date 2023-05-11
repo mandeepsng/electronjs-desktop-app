@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, ipcRenderer, webContents } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, ipcRenderer, webContents, Menu, MenuItem  } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
@@ -11,6 +11,36 @@ electronReload(__dirname)
 
 let win;
 let aboutWindow;
+
+const menuTemplate = [  {    label: 'File',    submenu: [      { role: 'quit' }    ]
+  },
+  {
+    label: 'About',
+    click: () => {
+      // Create a new window when "About" is clicked
+      createAboutWindow()
+    }
+  }
+]
+
+const menu = Menu.buildFromTemplate(menuTemplate)
+Menu.setApplicationMenu(menu)
+
+
+
+
+function createAboutWindow() {
+  const aboutWindow = new BrowserWindow({
+    width: 400,
+    height: 300,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  })
+
+  aboutWindow.loadFile('about.html')
+}
+
 
 function createSlug(str) {
   str = str.replace(/^\s+|\s+$/g, ''); // trim

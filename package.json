@@ -1,7 +1,7 @@
 {
   "name": "rvs",
   "version": "1.0.0",
-  "description": "",
+  "description": "salary slip software",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,7 +12,7 @@
     "build:win": "electron-builder build --win"
   },
   "keywords": [],
-  "author": "",
+  "author": "Mandeep Singh",
   "license": "ISC",
   "devDependencies": {
     "body-parser": "^1.20.2",

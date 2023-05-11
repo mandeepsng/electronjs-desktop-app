@@ -8,7 +8,7 @@ const counterElement = document.getElementById('counter');
 
 btn.addEventListener('click', async () => {
     const filePath = await window.electronAPI.openFile()
-    filePathElement.innerText = filePath
+    // filePathElement.innerText = filePath
     // const json = JSON.stringify(filePath, null, 2);
     // filePathElement.innerText = json
     // console.log(filePath[0])
